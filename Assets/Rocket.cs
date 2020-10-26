@@ -2,7 +2,8 @@
 
 public class Rocket : MonoBehaviour
 {
-
+    [SerializeField] float rcsThrust = 300f;
+    [SerializeField] float mainThrust = 1f;
     Rigidbody rigidBody;
     AudioSource rocketSound;
     // Start is called before the first frame update
@@ -25,9 +26,9 @@ public class Rocket : MonoBehaviour
     {
         if (Input.GetKey(KeyCode.Space))
         {   // can thrust while rotating; hence a separate IF here
-            print("Thrusting");
+            
             // time to fly!
-            rigidBody.AddRelativeForce(Vector3.up);
+            rigidBody.AddRelativeForce(Vector3.up * mainThrust);
             // make some noiiiiise
             if (!rocketSound.isPlaying)
             {
@@ -43,16 +44,36 @@ public class Rocket : MonoBehaviour
         private void Rotate()
     {
         rigidBody.freezeRotation = true; // take manual control of the rotation
+
+        
+        float rotationThisFrame = rcsThrust * Time.deltaTime;
+
         if (Input.GetKey(KeyCode.A))
         {
-            transform.Rotate(Vector3.forward);
+            transform.Rotate(Vector3.forward * rotationThisFrame);
         }
         else if (Input.GetKey(KeyCode.D))
         {
-            transform.Rotate(-Vector3.forward);
+            transform.Rotate(-Vector3.forward * rotationThisFrame);
         }
         
         rigidBody.freezeRotation = false; // resume normal physics
 
     }
+
+    void OnCollisionEnter(Collision collision) {
+        switch (collision.gameObject.tag) {
+            case "Friendly":
+            // do nothing
+                break;
+            case "Fuel":
+            // TODO: add fuel I guess
+                break;
+            default:
+                print("DEAD");
+                break;
+        }
+        
+    }
+
 }
